@@ -1,0 +1,45 @@
+﻿
+apr_memcache是用C写的memcached客户端，使用APR和APR-Util，由于提供连接池和线程安全，使其在Apache httpd模块中发挥极好性能。
+它被当作库使用（也就是说，不是模块）。
+不过有些小问题，自带的测试程序中超时时间(expiration time)可能会因为版本问题而出错。
+
+1.
+宏定义添加
+APR_DECLARE_EXPORT
+WIN32
+确保是动态导出api和动态导入APR DLL
+
+附加依赖项目选择使用动态链接的lib（以防万一把apr和apu的都加上）
+libapr-1.lib libaprutil-1.lib
+
+2.
+APR_DECLARE(apr_uint32_t)
+apr_memcache_hash(const char* data, apr_uint32_t data_len);
+
+声明和定义不同改为
+const apr_uint32_t data_len
+
+3.
+Windows SDK没有snprintf这个函数，用_snprintf代替
+
+4.
+要编译例子test，因为用了TransmitFile和其它winsock函数需要加入ws2_32.lib mswsock.lib
+http://msdn.microsoft.com/en-us/library/ms740565(VS.85).aspx
+由于使用了dll（使用APR_DECLARE_EXPORT和libxxx.dll)，所以可以直接用MTd或MT编译（避免使用msvcrt.dll)
+而不会出现符号冲突。
+
+
+5.
+测试代码使用的超时时间间隔(expiration time)以毫秒单位，在1.2.1以上版本会出现
+70015 Could not find specified socket in poll list.
+这个信息实际是apr_strerror返回的，不一定与问题有关（不过说明有地方与预期的不一样）。
+所以使用apr_memcache最好用memcached win32 1.2.1测试，不要用高版本的memcached。
+
+6.
+主页
+http://www.outoforder.cc/projects/libs/apr_memcache/
+类似的项目
+http://code.google.com/p/modmemcachecache/
+
+
+
