@@ -1,0 +1,197 @@
+﻿mingw/vc2008移植问题记录
+
+
+
+这主要是记录一下，没什么用，因为都是很菜鸟的问题（很容易解决）。
+除了mingw，也包括vc2008。
+另外，移植也不是简单地改几个宏就可以的（学习源代码倒是没问题）。
+我不会记录这些方法来自哪里，因为实际问题需要实际考虑，移植是没有公式可言的。
+
+
+
+
+
+Problem 1: VC2008 运行时库
+属性页->C/C++->代码生成->运行时库（一般是MTd和MT）
+
+
+
+Problem 2: inline函数重定义问题，可以考虑用#if屏蔽掉
+#if defined(_MSC_VER) && (_MSC_VER < 1500) //VC 9
+inline int inet_pton(int af, register const char *cp, struct in_addr *addr)
+
+
+
+Problem 3: libevent.lib 依赖问题。
+如果使用VC2008，并且建立起libevent源代码工程。可以考虑使用“链接器->输入->附加依赖项”，这样就不再需要添加libevent.lib
+
+
+
+
+Problem 4: errno赋值问题
+errno = 0需要改为set_errno(0);
+原因是vc2008的编译器在多线程时不允许你直接给errno赋值，貌似是为了线程安全，这时候就得写个宏。
+#if defined(_MT) || defined(_DLL)
+# define set_errno(x)    (*_errno()) = (x)
+#else
+# define set_errno(x)    errno = (x)
+#endif
+不知道linux怎么处理线程安全（好像linux根本就不需要这么复杂）。
+
+
+
+
+Problem 5:APR导入问题。
+如果有一天突然想用APR或APU来编程，你就得遇到这种囧问题——不知道怎么在vc2008里链接。
+一种方法是:
+宏定义添加
+APR_DECLARE_EXPORT
+WIN32
+确保是动态导出api和动态导入APR DLL
+
+附加依赖项目选择使用动态链接的lib（以防万一把apr和apu的都加上）
+libapr-1.lib libaprutil-1.lib
+如果不知道apr为何物，就最好别管这种复杂问题（Apache httpd的代码和API需要高手才看得懂的）
+推荐用动态库（不会遇到一堆链接错误）如果用静态库要改用另一套lib和APR_DECLARE_STATIC
+
+
+
+Problem 6: 函数声明和定义不同。
+可能vc2008会对类型很敏感。最好改为统一。
+
+
+
+Problem 7: snprintf问题
+Windows SDK没有snprintf这个函数，用_snprintf代替
+#ifndef snprintf
+#define snprintf _snprintf
+#endif
+
+
+
+Problem 8: strtoll和strtoull问题
+#if _MSC_VER < 1300
+#define strtoll(p, e, b) ((*(e) = (char*)(p) + (((b) == 10) ? strspn((p), "0123456789") : 0)), _atoi64(p))
+#else
+#define strtoll(p, e, b) _strtoi64(p, e, b) 
+#endif
+
+
+
+#ifndef strtoull
+#define strtoull strtoul
+#endif
+
+
+
+遇到这种问题需要查SDK的手册，你会发现有个叫_atoi64的API（这个函数很早就有了，用于32位操作系统上，定义在stdlib.h）。
+当然如果你不喜欢上面代码写得那么复杂，可以一概改为_atoi64。另外，还需要知道有个关键字__int64，
+可以用它表示有符号和无符号的64位整数（很少出现，除非你要用64位来提高性能）
+_strtoi64的用法稍微不同。还有个叫_i64toa的API，是_atoi64的逆转换。
+
+
+
+
+
+Problem 9:符号无定义。
+比如你用了TransmitFile，你就得加mswsock.lib（不过好像加的顺序有讲究的）
+如果不知道加什么，就查sdk帮助和搜索，一般微软会很热心地注明这个API需要用那个lib去
+链接。把所有lib加上去试也可以（只是这种方法有点菜）
+
+
+
+
+
+Problem 10:MySQL UDF问题
+比较通用的方法是写个.def文件
+LIBRARY	"xxx"
+EXPORTS
+...
+然后在工程中加入这个def
+编译好dll后拷贝到
+C:\Program Files (x86)\MySQL\MySQL Server 5.1\lib\plugin
+或者根据show variables like "plugin_dir";判断插件位置
+如果涉及别的dll，需要把依赖dll拷贝到PATH的路径下，例如
+C:\Program Files (x86)\MySQL\MySQL Server 5.1\bin
+否则mysqld会因为缺乏dll而启动不了UDF而认为UDF不存在。
+创建SQL类似于CREATE FUNCTION xxx RETURNS INT SONAME "xxx.dll";
+安装成功后select name, dl from mysql.func;查看
+要调试UDF可以用fprintf(stderr,...)的方法，然后用mysqld --console来启动mysqld。
+另外最好用debug版测试，万一崩溃了，mysqld会把输出一些堆栈信息到控制台上。
+
+
+
+
+Problem 11: WSAStartup和memset问题
+#ifdef WIN32
+	{
+		WSADATA wsaData;
+		if(WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
+			fprintf(stderr, "Socket Initialization Error. Program  aborted\n");
+			return 0;
+		}
+	}
+#endif
+
+这是windows的特有问题（写linux网络程序的人大概会很郁闷），
+如果有一天发现getaddrinfo返回非零，
+检查一下main函数有没有加WSAStartup。（连127.0.0.1都解析不了会很可笑）。
+另外memset也是个需要注意的问题，例如初始化struct addrinfo变量hints需要
+memset(&hints, 0, sizeof (hints));（有时候你忽略这个问题会出现一些古怪的结果）
+然后给某个成员变量赋值。
+linux的写法就不会那么复杂，它用C99的写法，在初始化时直接给变量的成员函数赋初始值。
+顺便一提VC支持字符串的全0初始，例如char s[10] = {0};比单纯写char s[10];要安全得多。
+
+
+
+
+
+
+
+
+（后续，待修改）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

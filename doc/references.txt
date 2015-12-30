@@ -1,0 +1,77 @@
+﻿[libmemcached-win32 for VS2008]
+url:
+	http://launchpadlibrarian.net/28293023/libmemcached.7z
+	libmemcached 0.29
+
+website:
+	https://bugs.launchpad.net/libmemcached/+bug/391725
+
+[Memcached Functions for MySQL] 
+url:
+	http://launchpad.net/memcached-udfs/trunk/1.1/+download/memcached_functions_mysql-1.1.tar.gz
+
+website:
+	https://launchpad.net/memcached-udfs
+
+
+[MySQL]
+url:
+	Server version: 5.1.46-community-log MySQL Community Server (GPL)
+
+website:
+	http://dev.mysql.com/downloads/mysql/
+
+[Pthreads-w32]
+url:
+	ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.exe
+
+website:
+	http://sourceware.org/pthreads-win32/
+
+
+[memcached for Win32]
+url:
+	http://jehiah.cz/projects/memcached-win32/files/memcached-1.1.12-win32-src.zip
+	http://jehiah.cz/projects/memcached-win32/files/memcached-1.1.13-pre-win32-src.zip
+	http://jehiah.cz/projects/memcached-win32/files/memcached-1.2.1-win32-src.zip
+	http://jehiah.cz/projects/memcached-win32/files/memcached-1.2.1-win32-src.zip
+	
+	
+website:
+	http://jehiah.cz/projects/memcached-win32/
+	
+	
+[libevnet]
+url:
+	http://jehiah.cz/projects/memcached-win32/files/libevent-1.1a-win32-src.zip
+	
+website:
+	http://jehiah.cz/projects/memcached-win32/
+	
+	
+[memcached for Windows]
+url:
+	http://www.splinedancer.com/memcached-win32/memcached-1.2.4-Win32-Preview-20080309_src.zip
+	
+website:
+	http://www.splinedancer.com/memcached-win32/
+	
+
+[Jellycan Code | memcached ]
+url:
+	http://code.jellycan.com/files/memcached-1.2.5-win32.zip
+	http://code.jellycan.com/files/memcached-1.2.6-win32-src.zip
+
+website:
+	http://code.jellycan.com/memcached/
+	
+	
+[libevent]
+url:
+	http://code.jellycan.com/files/libevent-1.4.4-stable-win32.zip
+	
+url:
+	http://code.jellycan.com/memcached/
+	
+
+

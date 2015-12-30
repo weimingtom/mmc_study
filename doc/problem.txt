@@ -1,0 +1,41 @@
+﻿a) 1.2.1
+
+b) 1.2.0
+加入libevent工程然后设置依赖。
+除此以外，还需要拷贝event.h到Win32-Prj下
+然后在memcached.h中加入#include "Win32-Prj/event.h"
+#ifdef WIN32
+#include "Win32-Code/win32.h"
+#endif /* WIN32 */
+#include "Win32-Prj/event.h"
+#define DATA_BUFFER_SIZE 2048
+#define UDP_READ_BUFFER_SIZE 65536
+#define UDP_MAX_PAYLOAD_SIZE 1400
+#define UDP_HEADER_SIZE 8
+#define MAX_SENDBUF_SIZE (256 * 1024 * 1024)
+
+另外属性页->C/C++->代码生成->运行时库（一般是MTd和MT）
+要对应好libevent的类型。
+
+链接器->输入->附加依赖项去掉libevent.lib（因为已经添加了依赖，不需要了）
+
+其他版本都有这个问题
+
+
+
+1.2.5， 1.2.6
+
+inet_pton重复定义，可以屏蔽
+
+#if defined(_MSC_VER) && (_MSC_VER < 1500) //VC 9
+inline int inet_pton(int af, register const char *cp, struct in_addr *addr)
+{
+    if(af != AF_INET) {
+		WSASetLastError(WSAEPFNOSUPPORT);
+		return -1;
+    }
+    return inet_aton(cp, addr);
+}
+#endif
+
+
