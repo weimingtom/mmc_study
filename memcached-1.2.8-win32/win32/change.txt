@@ -1,0 +1,6 @@
+errno = 0
+
+->
+
+set_errno(0);
+        
