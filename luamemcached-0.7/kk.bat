@@ -1,0 +1,2 @@
+memcached.exe -vv
+pause
