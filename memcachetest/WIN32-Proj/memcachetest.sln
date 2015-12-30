@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "memcachetest", "memcachetest.vcproj", "{FCB8C9A5-0DB4-42BD-A605-A2B56AACF187}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FCB8C9A5-0DB4-42BD-A605-A2B56AACF187}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FCB8C9A5-0DB4-42BD-A605-A2B56AACF187}.Debug|Win32.Build.0 = Debug|Win32
+		{FCB8C9A5-0DB4-42BD-A605-A2B56AACF187}.Release|Win32.ActiveCfg = Release|Win32
+		{FCB8C9A5-0DB4-42BD-A605-A2B56AACF187}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
